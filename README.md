@@ -1,4 +1,4 @@
-# voxkey
+# whisper-dictate
 
 Hold-to-talk X11 dictation utility (Milestones 0-3 implemented in this PR).
 
@@ -13,14 +13,14 @@ sudo apt install -y build-essential meson ninja-build pkg-config git libpulse-de
 ```bash
 meson setup build
 meson compile -C build
-./build/voxkey --version
+./build/whisper-dictate --version
 ```
 
 ## Config
 
 Default config path:
 
-`~/.config/voxkey/config.conf`
+`~/.config/whisper-dictate/config.conf`
 
 Example:
 
@@ -51,11 +51,11 @@ xset -r 127
 
 ## Current CLI (M0-M3)
 
-- `voxkey` → prints resolved config and starts X11 hotkey press/release loop.
-- `voxkey --config /path/to/config.conf` → use explicit config.
-- `voxkey --version` → print build info.
-- `voxkey --list-sources` → list sources via `pactl` (temporary for milestone 2).
-- `voxkey --self-test-config` → simple parser sanity check.
+- `whisper-dictate` → prints resolved config and starts X11 hotkey press/release loop.
+- `whisper-dictate --config /path/to/config.conf` → use explicit config.
+- `whisper-dictate --version` → print build info.
+- `whisper-dictate --list-sources` → list sources via `pactl` (temporary for milestone 2).
+- `whisper-dictate --self-test-config` → simple parser sanity check.
 
 ## Whisper backend status
 

@@ -40,7 +40,7 @@ Config default_config() {
 }
 
 std::string default_config_path() {
-    return expand_tilde("~/.config/voxkey/config.conf");
+    return expand_tilde("~/.config/whisper-dictate/config.conf");
 }
 
 Config load_config(const std::string& explicit_path, std::ostream& log) {

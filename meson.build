@@ -1,5 +1,5 @@
 project(
-  'voxkey',
+  'whisper-dictate',
   'cpp',
   version: '0.1.0',
   default_options: [
@@ -81,7 +81,7 @@ else
 endif
 
 executable(
-  'voxkey',
+  'whisper-dictate',
   sources,
   include_directories: inc_dirs,
   dependencies: deps,
