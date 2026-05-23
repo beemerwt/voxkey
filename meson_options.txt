@@ -1,0 +1,5 @@
+option('whisper_include_dir', type: 'string', value: '', description: 'Path to whisper.cpp headers')
+option('whisper_lib_dir', type: 'string', value: '', description: 'Path to whisper.cpp libraries')
+option('cuda', type: 'boolean', value: false, description: 'Expect whisper.cpp to be built with CUDA support')
+option('default_model', type: 'string', value: '', description: 'Default ggml model path')
+option('with_whisper', type: 'boolean', value: false, description: 'Link against whisper.cpp backend')
