@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <unistd.h>
 
-namespace whisper_dictate {
+namespace voxkey {
 namespace {
 
 void set_clipboard_text(Display* display, const std::string& text) {
@@ -100,4 +100,4 @@ void emit_output_text(const std::string& text, const std::string& mode) {
     XCloseDisplay(display);
 }
 
-}  // namespace whisper_dictate
+}  // namespace voxkey

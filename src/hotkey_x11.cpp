@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-namespace whisper_dictate {
+namespace voxkey {
 
 int run_hotkey_loop(
     const std::string& keysym_name,
@@ -64,4 +64,4 @@ int run_hotkey_loop(
     }
 }
 
-}  // namespace whisper_dictate
+}  // namespace voxkey

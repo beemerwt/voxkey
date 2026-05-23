@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <string>
 
-namespace whisper_dictate {
+namespace voxkey {
 
 inline std::string trim(std::string value) {
     value.erase(value.begin(), std::find_if(value.begin(), value.end(), [](unsigned char ch) {
@@ -42,4 +42,4 @@ inline std::string expand_tilde(const std::string& path) {
     return std::string(home) + path.substr(1);
 }
 
-}  // namespace whisper_dictate
+}  // namespace voxkey

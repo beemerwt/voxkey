@@ -8,7 +8,7 @@
 #include "config_build.h"
 #include "util.h"
 
-namespace whisper_dictate {
+namespace voxkey {
 namespace {
 
 bool parse_int(const std::string& key, const std::string& value, int& out, std::ostream& log) {
@@ -31,8 +31,8 @@ bool parse_int(const std::string& key, const std::string& value, int& out, std::
 
 Config default_config() {
     Config cfg;
-    if (std::string(WHISPER_DICTATE_DEFAULT_MODEL).size() > 0) {
-        cfg.model_path = WHISPER_DICTATE_DEFAULT_MODEL;
+    if (std::string(VOXKEY_DEFAULT_MODEL).size() > 0) {
+        cfg.model_path = VOXKEY_DEFAULT_MODEL;
     } else {
         cfg.model_path = "~/models/ggml-base.en.bin";
     }
@@ -120,4 +120,4 @@ bool self_test_config(std::ostream& out) {
     return true;
 }
 
-}  // namespace whisper_dictate
+}  // namespace voxkey

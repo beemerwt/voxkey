@@ -16,10 +16,10 @@ pulse_simple_dep = dependency('libpulse-simple', required: true)
 pulse_dep = dependency('libpulse', required: true)
 
 conf = configuration_data()
-conf.set10('WHISPER_DICTATE_WITH_WHISPER', get_option('with_whisper'))
-conf.set10('WHISPER_DICTATE_CUDA', get_option('cuda'))
-conf.set_quoted('WHISPER_DICTATE_VERSION', meson.project_version())
-conf.set_quoted('WHISPER_DICTATE_DEFAULT_MODEL', get_option('default_model'))
+conf.set10('VOXKEY_WITH_WHISPER', get_option('with_whisper'))
+conf.set10('VOXKEY_CUDA', get_option('cuda'))
+conf.set_quoted('VOXKEY_VERSION', meson.project_version())
+conf.set_quoted('VOXKEY_DEFAULT_MODEL', get_option('default_model'))
 configure_file(
   output: 'config_build.h',
   configuration: conf

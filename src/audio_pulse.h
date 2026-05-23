@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace whisper_dictate {
+namespace voxkey {
 
 struct AudioStats {
     std::size_t sample_count = 0;
@@ -16,4 +16,4 @@ void list_sources();
 std::vector<float> record_seconds(const std::string& source_name, int seconds);
 AudioStats compute_audio_stats(const std::vector<float>& samples);
 
-}  // namespace whisper_dictate
+}  // namespace voxkey

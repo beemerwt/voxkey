@@ -3,7 +3,7 @@
 #include <ostream>
 #include <string>
 
-namespace whisper_dictate {
+namespace voxkey {
 
 struct Config {
     std::string model_path;
@@ -24,4 +24,4 @@ std::string default_config_path();
 void print_config(const Config& config, std::ostream& out);
 bool self_test_config(std::ostream& out);
 
-}  // namespace whisper_dictate
+}  // namespace voxkey

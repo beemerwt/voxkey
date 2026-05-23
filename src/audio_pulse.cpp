@@ -9,7 +9,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace whisper_dictate {
+namespace voxkey {
 
 void list_sources() {
     std::cout << "listing PulseAudio/PipeWire sources via pactl...\n";
@@ -80,4 +80,4 @@ AudioStats compute_audio_stats(const std::vector<float>& samples) {
     return stats;
 }
 
-}  // namespace whisper_dictate
+}  // namespace voxkey
