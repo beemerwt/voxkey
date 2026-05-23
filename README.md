@@ -25,7 +25,7 @@ Default config path:
 Example:
 
 ```ini
-model_path=/home/beemer/apps/whisper.cpp/models/ggml-base.en.bin
+model_path=$HOME/apps/whisper.cpp/models/ggml-base.en.bin
 hotkey=Pause
 input_source=stable_input
 output_mode=clipboard_paste
