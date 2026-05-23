@@ -25,13 +25,13 @@ configure_file(
   configuration: conf
 )
 
-sources = [
+sources = files(
   'src/main.cpp',
   'src/config.cpp',
   'src/audio_pulse.cpp',
   'src/hotkey_x11.cpp',
   'src/output_x11.cpp',
-]
+)
 
 deps = [
   x11_dep,
@@ -40,10 +40,7 @@ deps = [
   pulse_dep,
 ]
 
-inc_dirs = [
-  include_directories('src'),
-  include_directories(meson.current_build_dir()),
-]
+inc_dirs = include_directories('src', '.')
 
 link_libs = []
 
