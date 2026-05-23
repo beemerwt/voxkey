@@ -11,7 +11,7 @@ void whisper_dictate_transcriber_stub_message();
 namespace {
 
 void print_version() {
-    std::cout << "whisper-dictate version " << WHISPER_DICTATE_VERSION << "\n"
+    std::cout << "voxkey version " << WHISPER_DICTATE_VERSION << "\n"
               << "with_whisper=" << (WHISPER_DICTATE_WITH_WHISPER ? "true" : "false") << "\n"
               << "cuda=" << (WHISPER_DICTATE_CUDA ? "true" : "false") << "\n";
 }
