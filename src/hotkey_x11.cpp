@@ -1,16 +1,16 @@
 #include "hotkey_x11.h"
 
-#include <X11/XKBlib.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
-#include <chrono>
 #include <iostream>
-#include <thread>
 
 namespace whisper_dictate {
 
-int run_hotkey_loop(const std::string& keysym_name) {
+int run_hotkey_loop(
+    const std::string& keysym_name,
+    const std::function<void()>& on_press,
+    const std::function<void()>& on_release) {
     Display* display = XOpenDisplay(nullptr);
     if (!display) {
         std::cerr << "error: failed to open X11 display\n";
@@ -24,26 +24,16 @@ int run_hotkey_loop(const std::string& keysym_name) {
         return 1;
     }
 
-    int keycode = XKeysymToKeycode(display, keysym);
-    if (keycode == 0) {
-        std::cerr << "error: keysym has no keycode on this layout\n";
-        XCloseDisplay(display);
-        return 1;
-    }
-
+    const int keycode = XKeysymToKeycode(display, keysym);
     Window root = DefaultRootWindow(display);
-    int grab_result = XGrabKey(display, keycode, AnyModifier, root, True, GrabModeAsync, GrabModeAsync);
-    XSync(display, False);
-    if (grab_result != GrabSuccess) {
-        std::cerr << "error: failed to grab hotkey; another app may own this binding\n";
-        XCloseDisplay(display);
-        return 1;
-    }
-
+    XGrabKey(display, keycode, AnyModifier, root, True, GrabModeAsync, GrabModeAsync);
     XSelectInput(display, root, KeyPressMask | KeyReleaseMask);
+    XSync(display, False);
+
     std::cout << "hotkey grabbed: " << keysym_name << " (keycode " << keycode << ")\n";
     std::cout << "waiting for hotkey press/release... (Ctrl+C to quit)\n";
 
+    bool pressed = false;
     while (true) {
         XEvent event;
         XNextEvent(display, &event);
@@ -51,7 +41,13 @@ int run_hotkey_loop(const std::string& keysym_name) {
             continue;
         }
 
-        if (event.type == KeyRelease) {
+        if (event.type == KeyPress) {
+            if (!pressed) {
+                pressed = true;
+                std::cout << "pressed\n";
+                on_press();
+            }
+        } else {
             if (XEventsQueued(display, QueuedAfterReading)) {
                 XEvent next;
                 XPeekEvent(display, &next);
@@ -59,16 +55,13 @@ int run_hotkey_loop(const std::string& keysym_name) {
                     continue;
                 }
             }
-            std::cout << "released\n";
-        } else {
-            std::cout << "pressed\n";
+            if (pressed) {
+                pressed = false;
+                std::cout << "released\n";
+                on_release();
+            }
         }
-        std::cout.flush();
     }
-
-    XUngrabKey(display, keycode, AnyModifier, root);
-    XCloseDisplay(display);
-    return 0;
 }
 
-}
+}  // namespace whisper_dictate
