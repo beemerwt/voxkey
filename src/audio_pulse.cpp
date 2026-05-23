@@ -32,7 +32,7 @@ std::vector<float> record_seconds(const std::string& source_name, int seconds) {
     int error = 0;
     pa_simple* pa = pa_simple_new(
         nullptr,
-        "whisper-dictate",
+        "voxkey",
         PA_STREAM_RECORD,
         source_name.empty() ? nullptr : source_name.c_str(),
         "record",
