@@ -6,6 +6,18 @@
 #include <iostream>
 
 namespace voxkey {
+namespace {
+
+bool g_grab_failed = false;
+
+int x_error_handler(Display*, XErrorEvent* error) {
+    if (error->error_code == BadAccess) {
+        g_grab_failed = true;
+    }
+    return 0;
+}
+
+}  // namespace
 
 int run_hotkey_loop(
     const std::string& keysym_name,
@@ -24,9 +36,22 @@ int run_hotkey_loop(
         return 1;
     }
 
-    const int keycode = XKeysymToKeycode(display, keysym);
+    const KeyCode keycode = XKeysymToKeycode(display, keysym);
     Window root = DefaultRootWindow(display);
+
+    g_grab_failed = false;
+    auto previous_handler = XSetErrorHandler(x_error_handler);
     XGrabKey(display, keycode, AnyModifier, root, True, GrabModeAsync, GrabModeAsync);
+    XSync(display, False);
+    XSetErrorHandler(previous_handler);
+
+    if (g_grab_failed) {
+        std::cerr << "error: failed to grab hotkey '" << keysym_name
+                  << "'. Another application may already own this binding.\n";
+        XCloseDisplay(display);
+        return 1;
+    }
+
     XSelectInput(display, root, KeyPressMask | KeyReleaseMask);
     XSync(display, False);
 

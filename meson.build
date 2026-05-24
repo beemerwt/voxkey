@@ -19,6 +19,7 @@ conf = configuration_data()
 conf.set10('VOXKEY_WITH_WHISPER', get_option('with_whisper'))
 conf.set10('VOXKEY_CUDA', get_option('cuda'))
 conf.set_quoted('VOXKEY_VERSION', meson.project_version())
+conf.set_quoted('VOXKEY_BUILD_TYPE', get_option('buildtype'))
 conf.set_quoted('VOXKEY_DEFAULT_MODEL', get_option('default_model'))
 configure_file(
   output: 'config_build.h',
@@ -44,6 +45,10 @@ inc_dirs = include_directories('src', '.')
 
 link_libs = []
 
+if get_option('cuda') and not get_option('with_whisper')
+  error('cuda=true requires with_whisper=true and CUDA-enabled whisper.cpp/ggml libraries')
+endif
+
 if get_option('with_whisper')
   whisper_include_dir = get_option('whisper_include_dir')
   whisper_lib_dir = get_option('whisper_lib_dir')
@@ -54,13 +59,19 @@ if get_option('with_whisper')
 
   inc_dirs += include_directories(whisper_include_dir)
 
-  whisper_lib = cpp.find_library('whisper', dirs: [whisper_lib_dir], required: true)
+  whisper_lib_dirs = [
+    whisper_lib_dir,
+    whisper_lib_dir / '..' / 'ggml' / 'src',
+    whisper_lib_dir / '..' / 'ggml' / 'src' / 'ggml-cuda',
+  ]
+
+  whisper_lib = cpp.find_library('whisper', dirs: whisper_lib_dirs, required: true)
   link_libs += whisper_lib
 
-  ggml_lib = cpp.find_library('ggml', dirs: [whisper_lib_dir], required: false)
-  ggml_base_lib = cpp.find_library('ggml-base', dirs: [whisper_lib_dir], required: false)
-  ggml_cpu_lib = cpp.find_library('ggml-cpu', dirs: [whisper_lib_dir], required: false)
-  ggml_cuda_lib = cpp.find_library('ggml-cuda', dirs: [whisper_lib_dir], required: get_option('cuda'))
+  ggml_lib = cpp.find_library('ggml', dirs: whisper_lib_dirs, required: false)
+  ggml_base_lib = cpp.find_library('ggml-base', dirs: whisper_lib_dirs, required: false)
+  ggml_cpu_lib = cpp.find_library('ggml-cpu', dirs: whisper_lib_dirs, required: false)
+  ggml_cuda_lib = cpp.find_library('ggml-cuda', dirs: whisper_lib_dirs, required: get_option('cuda'))
 
   if ggml_lib.found()
     link_libs += ggml_lib
@@ -84,7 +95,6 @@ executable(
   'voxkey',
   sources,
   include_directories: inc_dirs,
-  dependencies: deps,
-  link_with: link_libs,
+  dependencies: deps + link_libs,
   install: true
 )

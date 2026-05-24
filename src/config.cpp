@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <set>
 
 #include "config_build.h"
 #include "util.h"
@@ -24,6 +25,38 @@ bool parse_int(const std::string& key, const std::string& value, int& out, std::
     } catch (...) {
         log << "warning: invalid integer for key '" << key << "': '" << value << "'\n";
         return false;
+    }
+}
+
+void validate_config(Config& cfg, std::ostream& log) {
+    const std::set<std::string> output_modes = {"clipboard_only", "clipboard_paste", "stdout"};
+    if (!output_modes.contains(cfg.output_mode)) {
+        log << "warning: invalid output_mode '" << cfg.output_mode << "', using clipboard_paste\n";
+        cfg.output_mode = "clipboard_paste";
+    }
+    if (cfg.hotkey.empty()) {
+        log << "warning: hotkey cannot be empty, using Pause\n";
+        cfg.hotkey = "Pause";
+    }
+    if (cfg.post_release_ms < 0) {
+        log << "warning: post_release_ms cannot be negative, using 350\n";
+        cfg.post_release_ms = 350;
+    }
+    if (cfg.step_ms <= 0) {
+        log << "warning: step_ms must be > 0, using 500\n";
+        cfg.step_ms = 500;
+    }
+    if (cfg.window_ms <= 0) {
+        log << "warning: window_ms must be > 0, using 5000\n";
+        cfg.window_ms = 5000;
+    }
+    if (cfg.threads <= 0) {
+        log << "warning: threads must be > 0, using 8\n";
+        cfg.threads = 8;
+    }
+    if (cfg.language.empty()) {
+        log << "warning: language cannot be empty, using en\n";
+        cfg.language = "en";
     }
 }
 
@@ -51,6 +84,7 @@ Config load_config(const std::string& explicit_path, std::ostream& log) {
     if (!in.is_open()) {
         log << "info: config file not found at '" << path << "', using defaults\n";
         cfg.model_path = expand_tilde(cfg.model_path);
+        validate_config(cfg, log);
         return cfg;
     }
 
@@ -93,6 +127,7 @@ Config load_config(const std::string& explicit_path, std::ostream& log) {
     }
 
     cfg.model_path = expand_tilde(cfg.model_path);
+    validate_config(cfg, log);
     return cfg;
 }
 

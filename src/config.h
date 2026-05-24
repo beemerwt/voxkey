@@ -9,7 +9,7 @@ struct Config {
     std::string model_path;
     std::string hotkey = "Pause";
     std::string input_source = "stable_input";
-    std::string output_mode = "stdout";
+    std::string output_mode = "clipboard_paste";
     int post_release_ms = 350;
     int step_ms = 500;
     int window_ms = 5000;

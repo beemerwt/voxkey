@@ -12,21 +12,14 @@
 namespace voxkey {
 namespace {
 
-void set_clipboard_text(Display* display, const std::string& text) {
-    Window w = XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, 1, 1, 0, 0, 0);
+void serve_clipboard_requests(Display* display, Window owner, const std::string& text, int milliseconds) {
     Atom clipboard = XInternAtom(display, "CLIPBOARD", False);
     Atom utf8 = XInternAtom(display, "UTF8_STRING", False);
     Atom targets = XInternAtom(display, "TARGETS", False);
     Atom xa_string = XA_STRING;
 
-    XSetSelectionOwner(display, clipboard, w, CurrentTime);
-    if (XGetSelectionOwner(display, clipboard) != w) {
-        XDestroyWindow(display, w);
-        throw std::runtime_error("failed to own CLIPBOARD selection");
-    }
-
-    // serve selection requests for a short window while paste is triggered
-    for (int i = 0; i < 50; ++i) {
+    const int ticks = milliseconds / 10;
+    for (int i = 0; i < ticks; ++i) {
         while (XPending(display)) {
             XEvent ev;
             XNextEvent(display, &ev);
@@ -43,23 +36,38 @@ void set_clipboard_text(Display* display, const std::string& text) {
             res.xselection.time = req->time;
             res.xselection.property = req->property;
 
-            if (req->target == targets) {
+            if (req->selection != clipboard) {
+                res.xselection.property = None;
+            } else if (req->target == targets) {
                 Atom supported[2] = {utf8, xa_string};
                 XChangeProperty(display, req->requestor, req->property, XA_ATOM, 32, PropModeReplace,
                                 reinterpret_cast<const unsigned char*>(supported), 2);
             } else if (req->target == utf8 || req->target == xa_string) {
                 XChangeProperty(display, req->requestor, req->property, req->target, 8, PropModeReplace,
-                                reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
+                                reinterpret_cast<const unsigned char*>(text.c_str()), static_cast<int>(text.size()));
             } else {
                 res.xselection.property = None;
             }
             XSendEvent(display, req->requestor, False, 0, &res);
             XFlush(display);
         }
+        if (XGetSelectionOwner(display, clipboard) != owner) {
+            return;
+        }
         usleep(10000);
     }
+}
 
-    XDestroyWindow(display, w);
+Window own_clipboard(Display* display) {
+    Window w = XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, 1, 1, 0, 0, 0);
+    Atom clipboard = XInternAtom(display, "CLIPBOARD", False);
+
+    XSetSelectionOwner(display, clipboard, w, CurrentTime);
+    if (XGetSelectionOwner(display, clipboard) != w) {
+        XDestroyWindow(display, w);
+        throw std::runtime_error("failed to own CLIPBOARD selection");
+    }
+    return w;
 }
 
 void send_ctrl_v(Display* display) {
@@ -86,11 +94,15 @@ void emit_output_text(const std::string& text, const std::string& mode) {
     }
 
     if (mode == "clipboard_only") {
-        set_clipboard_text(display, text);
+        Window owner = own_clipboard(display);
+        serve_clipboard_requests(display, owner, text, 2000);
+        XDestroyWindow(display, owner);
         std::cout << "clipboard updated\n";
     } else if (mode == "clipboard_paste") {
-        set_clipboard_text(display, text);
+        Window owner = own_clipboard(display);
         send_ctrl_v(display);
+        serve_clipboard_requests(display, owner, text, 2000);
+        XDestroyWindow(display, owner);
         std::cout << "paste complete\n";
     } else {
         XCloseDisplay(display);
